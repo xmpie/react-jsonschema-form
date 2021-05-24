@@ -22,6 +22,7 @@ export default {
     description:
       "This form defines custom validation rules checking that the two passwords match.",
     type: "object",
+    required: ["age"],
     properties: {
       pass1: {
         title: "Password",
@@ -38,11 +39,16 @@ export default {
         type: "number",
         minimum: 18,
       },
+      name: {
+        title: "Name",
+        type: "string",
+      },
     },
   },
   uiSchema: {
-    pass1: { "ui:widget": "password" },
-    pass2: { "ui:widget": "password" },
+    pass1: { "ui:widget": "password", "ui:emptyValue": "" },
+    pass2: { "ui:widget": "password", "ui:emptyValue": "" },
+    age: { "ui:emptyValue": "" },
   },
   formData: {},
   validate,

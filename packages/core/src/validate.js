@@ -2,7 +2,7 @@ import toPath from "lodash/toPath";
 import Ajv from "ajv";
 let ajv = createAjvInstance();
 import { deepEquals, getDefaultFormState } from "./utils";
-
+import { removeEmptyArrays, filterErrors } from "./xmpie_validate_utils";
 let formerCustomFormats = null;
 let formerMetaSchema = null;
 
@@ -80,7 +80,7 @@ function toErrorSchema(errors) {
   }, {});
 }
 
-export function toErrorList(errorSchema, fieldName = "root") {
+export function toErrorList(errorSchema, filterSchema, fieldName = "root") {
   // XXX: We should transform fieldName as a full field path string.
   let errorList = [];
   if ("__errors" in errorSchema) {
@@ -91,10 +91,18 @@ export function toErrorList(errorSchema, fieldName = "root") {
         };
       })
     );
+    if (filterSchema) {
+      errorList = errorList.filter(
+        error =>
+          Object.keys(filterSchema).find(
+            key => key == error.stack.split(":")[0].trim()
+          ) != null
+      );
+    }
   }
   return Object.keys(errorSchema).reduce((acc, key) => {
     if (key !== "__errors") {
-      acc = acc.concat(toErrorList(errorSchema[key], key));
+      acc = acc.concat(toErrorList(errorSchema[key], filterSchema, key));
     }
     return acc;
   }, errorList);
@@ -170,8 +178,17 @@ export default function validateFormData(
   customValidate,
   transformErrors,
   additionalMetaSchemas = [],
-  customFormats = {}
+  customFormats = {},
+  validateFormDataOnly = false
 ) {
+  //XMPie Validation work on subset of formData
+  var formDataFromEvent = {};
+  if (validateFormDataOnly) {
+    Object.assign(formDataFromEvent, { ...formData });
+    //Improve required validation by trimming empty arrays
+    removeEmptyArrays(formData);
+  }
+  //End work on subset of data
   // Include form data with undefined values, which is required for validation.
   const rootSchema = schema;
   formData = getDefaultFormState(schema, formData, rootSchema, true);
@@ -233,7 +250,20 @@ export default function validateFormData(
   }
 
   let errorSchema = toErrorSchema(errors);
-
+  //XMPie filter errors from current data
+  if (typeof customValidate !== "function") {
+    if (validateFormDataOnly) {
+      const filteredErros = filterErrors(
+        errors,
+        errorSchema,
+        formDataFromEvent,
+        toErrorSchema
+      );
+      errors = filteredErros.errors;
+      errorSchema = filteredErros.errorSchema;
+    }
+  }
+  //XMPie-END filter errors from current data
   if (noProperMetaSchema) {
     errorSchema = {
       ...errorSchema,
@@ -251,11 +281,23 @@ export default function validateFormData(
 
   const errorHandler = customValidate(formData, createErrorHandler(formData));
   const userErrorSchema = unwrapErrorHandler(errorHandler);
-  const newErrorSchema = mergeObjects(errorSchema, userErrorSchema, true);
+  var newErrorSchema = mergeObjects(errorSchema, userErrorSchema, true);
   // XXX: The errors list produced is not fully compliant with the format
   // exposed by the jsonschema lib, which contains full field paths and other
   // properties.
-  const newErrors = toErrorList(newErrorSchema);
+
+  var newErrors = toErrorList(newErrorSchema);
+  //XMPie filter erros from custom validation
+  //This code currently does not handle nesting
+  if (validateFormDataOnly) {
+    newErrors = toErrorList(newErrorSchema, formDataFromEvent);
+    var nnes = { __errors: newErrorSchema["__errors"] };
+    Object.keys(newErrorSchema)
+      .filter(nes => formDataFromEvent[nes] != undefined)
+      .map(field => (nnes[field] = newErrorSchema[field]));
+    newErrorSchema = nnes;
+  }
+  //XMPie End
 
   return {
     errors: newErrors,

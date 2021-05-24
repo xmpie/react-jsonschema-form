@@ -353,7 +353,7 @@ class Playground extends Component {
       theme,
       subtheme: null,
       liveSettings: {
-        validate: false,
+        validate: true,
         disable: false,
         omitExtraData: false,
         liveOmit: false,
@@ -620,6 +620,8 @@ class Playground extends Component {
                 }
                 transformErrors={transformErrors}
                 onError={log("errors")}
+                validateFormDataOnly={true}
+                showErrorList={false}
               />
             </DemoFrame>
           )}

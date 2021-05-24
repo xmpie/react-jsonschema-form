@@ -77,7 +77,13 @@ function BaseInput(props) {
       {...inputProps}
       list={schema.examples ? `examples_${inputProps.id}` : null}
       onChange={_onChange}
-      onBlur={onBlur && (event => onBlur(inputProps.id, event.target.value))}
+      onBlur={
+        onBlur &&
+        (event => {
+          _onChange(event);
+          return onBlur(inputProps.id, event.target.value);
+        })
+      }
       onFocus={onFocus && (event => onFocus(inputProps.id, event.target.value))}
     />,
     schema.examples ? (

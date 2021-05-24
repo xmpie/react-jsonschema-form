@@ -144,18 +144,21 @@ export default class Form extends Component {
     formData,
     schema = this.props.schema,
     additionalMetaSchemas = this.props.additionalMetaSchemas,
-    customFormats = this.props.customFormats
+    customFormats = this.props.customFormats,
+    validateFormDataOnly = this.props.validateFormDataOnly
   ) {
     const { validate, transformErrors } = this.props;
     const { rootSchema } = this.getRegistry();
     const resolvedSchema = retrieveSchema(schema, rootSchema, formData);
+    console.log({ validateFormDataOnly });
     return validateFormData(
       formData,
       resolvedSchema,
       validate,
       transformErrors,
       additionalMetaSchemas,
-      customFormats
+      customFormats,
+      validateFormDataOnly
     );
   }
 
@@ -331,7 +334,13 @@ export default class Form extends Component {
     }
 
     if (!this.props.noValidate) {
-      let schemaValidation = this.validate(newFormData);
+      let schemaValidation = this.validate(
+        newFormData,
+        undefined,
+        undefined,
+        undefined,
+        false
+      );
       let errors = schemaValidation.errors;
       let errorSchema = schemaValidation.errorSchema;
       const schemaValidationErrors = errors;
