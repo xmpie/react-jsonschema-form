@@ -29,7 +29,13 @@ function TextareaWidget(props) {
       readOnly={readonly}
       autoFocus={autofocus}
       rows={options.rows}
-      onBlur={onBlur && (event => onBlur(id, event.target.value))}
+      onBlur={
+        onBlur &&
+        (event => {
+          onFocus(id, event.target.value);
+          return onBlur(id, event.target.value);
+        })
+      }
       onFocus={onFocus && (event => onFocus(id, event.target.value))}
       onChange={_onChange}
     />
