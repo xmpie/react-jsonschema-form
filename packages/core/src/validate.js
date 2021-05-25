@@ -177,7 +177,7 @@ function transformAjvErrors(errors = []) {
  * will be used to add custom validation errors for each field.
  */
 export default function validateFormData(
-  formData,
+  _formData,
   schema,
   customValidate,
   transformErrors,
@@ -187,23 +187,18 @@ export default function validateFormData(
 ) {
   //XMPie Validation work on subset of formData
   var formDataFromEvent = {};
-  var validationFormData = formData;
+  var formData = _formData;
   if (validateFormDataOnly) {
-    Object.assign(formDataFromEvent, { ...formData });
-    validationFormData = {};
-    Object.assign(validationFormData, { ...formData });
-    removeEmptyArrays(validationFormData);
+    Object.assign(formDataFromEvent, { ..._formData });
+    formData = {};
+    Object.assign(formData, { ..._formData });
+    removeEmptyArrays(formData);
     //Improve required validation by trimming empty arrays
   }
   //End work on subset of data
   // Include form data with undefined values, which is required for validation.
   const rootSchema = schema;
-  validationFormData = getDefaultFormState(
-    schema,
-    validationFormData,
-    rootSchema,
-    true
-  );
+  formData = getDefaultFormState(schema, formData, rootSchema, true);
 
   const newMetaSchemas = !deepEquals(formerMetaSchema, additionalMetaSchemas);
   const newFormats = !deepEquals(formerCustomFormats, customFormats);
@@ -233,7 +228,7 @@ export default function validateFormData(
 
   let validationError = null;
   try {
-    ajv.validate(schema, validationFormData);
+    ajv.validate(schema, formData);
   } catch (err) {
     validationError = err;
   }
@@ -291,10 +286,7 @@ export default function validateFormData(
     return { errors, errorSchema };
   }
 
-  const errorHandler = customValidate(
-    validationFormData,
-    createErrorHandler(validationFormData)
-  );
+  const errorHandler = customValidate(formData, createErrorHandler(formData));
   const userErrorSchema = unwrapErrorHandler(errorHandler);
   var newErrorSchema = mergeObjects(errorSchema, userErrorSchema, true);
   // XXX: The errors list produced is not fully compliant with the format
