@@ -34,6 +34,16 @@ export default {
         type: "string",
         minLength: 3,
       },
+      person: {
+        type: "object",
+        required: ["firstname"],
+        properties: {
+          firstname: {
+            type: "string",
+            title: "Name",
+          },
+        },
+      },
       age: {
         title: "Age",
         type: "number",
@@ -46,9 +56,9 @@ export default {
     },
   },
   uiSchema: {
-    pass1: { "ui:widget": "password", "ui:emptyValue": "" },
-    pass2: { "ui:widget": "password", "ui:emptyValue": "" },
-    age: { "ui:emptyValue": "" },
+    pass1: { "ui:widget": "password" },
+    pass2: { "ui:widget": "password" },
+    age: {},
   },
   formData: {},
   validate,

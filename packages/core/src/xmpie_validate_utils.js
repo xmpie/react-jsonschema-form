@@ -88,3 +88,22 @@ function flattenObject(obj, previousKey) {
   }
   return flattened;
 }
+
+export function searchFormDataForErrorSchema(
+  newErrorSchemaFragement,
+  formDataFragement,
+  errorSchemaFragement
+) {
+  Object.keys(errorSchemaFragement).forEach(key => {
+    if (key != "__errors" && formDataFragement[key] !== undefined) {
+      newErrorSchemaFragement[key] = {
+        __errors: errorSchemaFragement[key]["__errors"],
+      };
+      searchFormDataForErrorSchema(
+        newErrorSchemaFragement[key],
+        formDataFragement[key],
+        errorSchemaFragement[key]
+      );
+    }
+  });
+}

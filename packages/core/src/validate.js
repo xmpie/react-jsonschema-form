@@ -2,7 +2,11 @@ import toPath from "lodash/toPath";
 import Ajv from "ajv";
 let ajv = createAjvInstance();
 import { deepEquals, getDefaultFormState } from "./utils";
-import { removeEmptyArrays, filterErrors } from "./xmpie_validate_utils";
+import {
+  removeEmptyArrays,
+  filterErrors,
+  searchFormDataForErrorSchema,
+} from "./xmpie_validate_utils";
 let formerCustomFormats = null;
 let formerMetaSchema = null;
 
@@ -292,9 +296,10 @@ export default function validateFormData(
   if (validateFormDataOnly) {
     newErrors = toErrorList(newErrorSchema, formDataFromEvent);
     var nnes = { __errors: newErrorSchema["__errors"] };
-    Object.keys(newErrorSchema)
-      .filter(nes => formDataFromEvent[nes] != undefined)
-      .map(field => (nnes[field] = newErrorSchema[field]));
+    searchFormDataForErrorSchema(nnes, formDataFromEvent, newErrorSchema);
+    // Object.keys(newErrorSchema)
+    //   .filter(nes => formDataFromEvent[nes] != undefined)
+    //   .map(field => (nnes[field] = newErrorSchema[field]));
     newErrorSchema = nnes;
   }
   //XMPie End
