@@ -187,9 +187,10 @@ export default function validateFormData(
 ) {
   //XMPie Validation work on subset of formData
   var formDataFromEvent = {};
-  var validationFormData = {};
+  var validationFormData = formData;
   if (validateFormDataOnly) {
     Object.assign(formDataFromEvent, { ...formData });
+    validationFormData = {};
     Object.assign(validationFormData, { ...formData });
     removeEmptyArrays(validationFormData);
     //Improve required validation by trimming empty arrays
