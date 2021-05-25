@@ -77,6 +77,7 @@ function SelectWidget(props) {
         onBlur &&
         (event => {
           const newValue = getValue(event, multiple);
+          onChange(processValue(schema, newValue));
           onBlur(id, processValue(schema, newValue));
         })
       }
