@@ -95,7 +95,7 @@ export function searchFormDataForErrorSchema(
   errorSchemaFragement
 ) {
   Object.keys(errorSchemaFragement).forEach(key => {
-    if (key != "__errors" && formDataFragement[key] !== undefined) {
+    if (key != "__errors" && Object.keys(formDataFragement).includes(key)) {
       newErrorSchemaFragement[key] = {
         __errors: errorSchemaFragement[key]["__errors"],
       };
