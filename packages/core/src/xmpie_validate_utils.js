@@ -1,34 +1,38 @@
 export function removeEmptyArrays(formData) {
-  for (var key in formData) {
+  //for (var key in formData) {
+  Object.keys(formData).forEach(key => {
     var arr = formData[key];
 
     if (Array.isArray(arr)) {
-      // Iterate through all elements and remove empty arrays
-      var nonEmptyArr = [];
-      for (var i = 0; i < arr.length; ++i) {
-        // Recursive call if it's an object inside an array
-        if (typeof arr[i] === "object") {
-          removeEmptyArrays(arr);
-        }
+      if (arr.length === 0) {
+        delete formData[key];
+      } else {
+        // Iterate through all elements and remove empty arrays
+        var nonEmptyArr = [];
+        for (var i = 0; i < arr.length; ++i) {
+          // Recursive call if it's an object inside an array
+          if (typeof arr[i] === "object") {
+            removeEmptyArrays(arr);
+          }
 
-        // Save all non-empty arrays or objects inside this one
-        if (
-          (Array.isArray(arr[i]) && arr[i].length > 0) ||
-          !Array.isArray(arr[i])
-        ) {
-          nonEmptyArr.push(arr[i]);
+          // Save all non-empty arrays or objects inside this one
+          if (
+            (Array.isArray(arr[i]) && arr[i].length > 0) ||
+            !Array.isArray(arr[i])
+          ) {
+            nonEmptyArr.push(arr[i]);
+          }
         }
+        formData[key] = nonEmptyArr;
+        return;
       }
-
-      formData[key] = nonEmptyArr;
-      return;
     }
 
     // Recursive call if it's an object
     if (typeof arr === "object") {
       removeEmptyArrays(arr);
     }
-  }
+  });
 }
 export function filterErrors(
   errors,
