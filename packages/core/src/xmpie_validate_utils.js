@@ -1,15 +1,14 @@
 export function removeEmptyArrays(formData) {
-  //for (var key in formData) {
   Object.keys(formData).forEach(key => {
-    var arr = formData[key];
+    let arr = formData[key];
 
     if (Array.isArray(arr)) {
       if (arr.length === 0) {
         delete formData[key];
       } else {
         // Iterate through all elements and remove empty arrays
-        var nonEmptyArr = [];
-        for (var i = 0; i < arr.length; ++i) {
+        const nonEmptyArr = [];
+        for (let i = 0; i < arr.length; ++i) {
           // Recursive call if it's an object inside an array
           if (typeof arr[i] === "object") {
             removeEmptyArrays(arr);
@@ -40,10 +39,10 @@ export function filterErrors(
   formDataFromEvent,
   toErrorSchema
 ) {
-  var formDataDirectKeys = Object.keys(flattenObject(formDataFromEvent, ""));
-  var filteredErrors = [];
+  let formDataDirectKeys = Object.keys(flattenObject(formDataFromEvent, ""));
+  let filteredErrors = [];
   errors.forEach(error => {
-    if (formDataDirectKeys.find(key => error.property == key)) {
+    if (formDataDirectKeys.find(key => error.property === key)) {
       filteredErrors.push(error);
     }
   });
@@ -60,7 +59,7 @@ function flattenObject(obj, previousKey) {
     Object.keys(obj).forEach(key => {
       if (typeof obj[key] === "object" && obj[key] !== null) {
         if (Array.isArray(obj[key])) {
-          if (obj[key].length == 0) {
+          if (obj[key].length === 0) {
             flattened[previousKey + "." + key] = [];
           } else {
             obj[key].map((objArray, index) =>
@@ -99,7 +98,7 @@ export function searchFormDataForErrorSchema(
   errorSchemaFragement
 ) {
   Object.keys(errorSchemaFragement).forEach(key => {
-    if (key != "__errors" && Object.keys(formDataFragement).includes(key)) {
+    if (key !== "__errors" && Object.keys(formDataFragement).includes(key)) {
       newErrorSchemaFragement[key] = {
         __errors: errorSchemaFragement[key]["__errors"],
       };
